@@ -16,6 +16,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -25,7 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends FragmentActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener {
+		GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	
@@ -190,13 +191,12 @@ public class MainActivity extends FragmentActivity implements
 	    
 	    
 	    //Centra en la ubicacion que se le pasa dentro del mapa
-		LatLng ll = new LatLng(-34.921379690174966,-57.954715202392556);
-	    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(ll, 13);
-	    map.animateCamera(cameraUpdate);
-	    
+		LatLng lp = new LatLng(-34.921379690174966,-57.954715202392556);
+	    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(lp, 13);
+	    map.animateCamera(cameraUpdate);	    
 	    
 	    //Agrega un marcador en el mapa
-	    map.addMarker (new MarkerOptions().position(new LatLng(-34.921379690174966,-57.954715202392556)).title("La Plata, Bs. As, Argentina"));
+	    map.addMarker (new MarkerOptions().position(lp).title("La Plata, Bs. As, Argentina"));
 
 		
 	}
@@ -209,6 +209,12 @@ public class MainActivity extends FragmentActivity implements
 		Toast.makeText(this, "Disconnected. Please re-connect.",
 				Toast.LENGTH_SHORT).show();
 
+	}
+
+	@Override
+	public void onLocationChanged(Location arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	// @Override

@@ -4,5 +4,10 @@
     <string name="app_name">Geolocalizacion2</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="textview">Settings</string>
+    <string name = "str_btn_draw" > Dibujar Ruta </string >
+    
+    
+    
 
 </resources>

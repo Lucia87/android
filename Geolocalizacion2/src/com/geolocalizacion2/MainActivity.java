@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -23,6 +24,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 public class MainActivity extends FragmentActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
@@ -31,6 +33,7 @@ public class MainActivity extends FragmentActivity implements
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	
 
+	
 	private LocationClient mLocationClient;
 	Location mCurrentLocation;
 
@@ -190,18 +193,54 @@ public class MainActivity extends FragmentActivity implements
 	    GoogleMap map = fragmentManager.getMap();
 	    
 	    
+ 
+	    
 	    //Centra en la ubicacion que se le pasa dentro del mapa
 		LatLng lp = new LatLng(-34.921379690174966,-57.954715202392556);
+		
+		LatLng MiCasa= new LatLng(-34.910242, -57.944417);
+		LatLng Menacho= new LatLng(-34.9107015,-57.9432675);
+
+		
 	    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(lp, 13);
-	    map.animateCamera(cameraUpdate);	    
+	    map.animateCamera(cameraUpdate);	
+	    
+	    
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        
+        //Acá le indico que habilite mi ubicacion actual.
+	    map.setMyLocationEnabled(true);
 	    
 	    //Agrega un marcador en el mapa
 	    map.addMarker (new MarkerOptions().position(lp).title("La Plata, Bs. As, Argentina"));
+	  
+	    
+	    
+	    PolylineOptions lineas = new PolylineOptions()
 
-		
+        .add(new LatLng(-34.9106916,-57.943816))
+
+        .add(new LatLng(-34.911462,-57.9429356))
+
+        .add(new LatLng(-34.9106564,-57.9418808))
+
+        .add(new LatLng(-34.9097392,-57.942937))
+
+        .add(new LatLng(-34.9106916,-57.943816));
+
+
+
+	    lineas.width(8);
+
+	    lineas.color(Color.BLUE);
+
+
+
+	    map.addPolyline(lineas);
+	    
 	}
-	
-	
+ 
+
 
 	@Override
 	public void onDisconnected() {
@@ -211,11 +250,7 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
-	@Override
-	public void onLocationChanged(Location arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 	// @Override
 	// public boolean onCreateOptionsMenu(Menu menu) {
@@ -235,5 +270,13 @@ public class MainActivity extends FragmentActivity implements
 	// }
 	// return super.onOptionsItemSelected(item);
 	// }
+	
+	
+	@Override
+	public void onLocationChanged(Location arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

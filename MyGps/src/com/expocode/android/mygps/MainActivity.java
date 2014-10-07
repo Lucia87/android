@@ -36,6 +36,10 @@ public class MainActivity extends Activity {
 
 		messageTextView.setText("LocationListener agregado");
 		messageTextView2.setText("");
+		
+		
+
+
 	}
 
 	@Override
@@ -46,7 +50,7 @@ public class MainActivity extends Activity {
 	}
 
 	public void setLocation(Location loc) {
-		//Obtener la direcci—n de la calle a partir de la latitud y la longitud 
+		//Obtener la direcciï¿½n de la calle a partir de la latitud y la longitud 
 		if (loc.getLatitude() != 0.0 && loc.getLongitude() != 0.0) {
 			try {
 				Geocoder geocoder = new Geocoder(this, Locale.getDefault());
@@ -54,7 +58,7 @@ public class MainActivity extends Activity {
 						loc.getLatitude(), loc.getLongitude(), 1);
 				if (!list.isEmpty()) {
 					Address address = list.get(0);
-					messageTextView2.setText("Mi direcci—n es: \n"
+					messageTextView2.setText("Mi direcciï¿½n es: \n"
 							+ address.getAddressLine(0));
 				}
 
@@ -78,11 +82,11 @@ public class MainActivity extends Activity {
 
 		@Override
 		public void onLocationChanged(Location loc) {
-			// Este mŽtodo se ejecuta cada vez que el GPS recibe nuevas coordenadas
-			// debido a la detecci—n de un cambio de ubicacion
+			// Este mï¿½todo se ejecuta cada vez que el GPS recibe nuevas coordenadas
+			// debido a la detecciï¿½n de un cambio de ubicacion
 			loc.getLatitude();
 			loc.getLongitude();
-			String Text = "Mi ubicaci—n actual es: " + "\n Lat = "
+			String Text = "Mi ubicaciï¿½n actual es: " + "\n Lat = "
 					+ loc.getLatitude() + "\n Long = " + loc.getLongitude();
 			messageTextView.setText(Text);
 			this.mainActivity.setLocation(loc);
@@ -90,23 +94,23 @@ public class MainActivity extends Activity {
 
 		@Override
 		public void onProviderDisabled(String provider) {
-			// Este mŽtodo se ejecuta cuando el GPS es desactivado
+			// Este mï¿½todo se ejecuta cuando el GPS es desactivado
 			messageTextView.setText("GPS Desactivado");
 		}
 
 		@Override
 		public void onProviderEnabled(String provider) {
-			// Este mŽtodo se ejecuta cuando el GPS es activado
+			// Este mï¿½todo se ejecuta cuando el GPS es activado
 			messageTextView.setText("GPS Activado");
 		}
 
 		@Override
 		public void onStatusChanged(String provider, int status, Bundle extras) {
-			// Este mŽtodo se ejecuta cada vez que se detecta un cambio en el
-			// status del proveedor de localizaci—n (GPS)
+			// Este mï¿½todo se ejecuta cada vez que se detecta un cambio en el
+			// status del proveedor de localizaciï¿½n (GPS)
 			// Los diferentes Status son:
 			// OUT_OF_SERVICE -> Si el proveedor esta fuera de servicio
-			// TEMPORARILY_UNAVAILABLE -> Temp˜ralmente no disponible pero se
+			// TEMPORARILY_UNAVAILABLE -> Tempï¿½ralmente no disponible pero se
 			// espera que este disponible en breve
 			// AVAILABLE -> Disponible
 		}

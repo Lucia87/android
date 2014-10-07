@@ -1,5 +1,12 @@
 package com.geolocalizacion2;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import com.geolocalizacion2.HttpConnection;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -7,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -26,13 +34,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+
 public class MainActivity extends FragmentActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
 
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	
-
+	private static final LatLng Mi_casa = new LatLng(-34.910242, -57.944417);
+	private static final LatLng Teatro_argentino = new LatLng(-34.920458,-57.9526553);
+	private static final LatLng Casa_Esteban = new LatLng(-34.916618,-57.9408106);
+	GoogleMap map;
 	
 	private LocationClient mLocationClient;
 	Location mCurrentLocation;
@@ -190,7 +202,7 @@ public class MainActivity extends FragmentActivity implements
 //		System.out.println(mCurrentLocation.getLatitude()+"-"+mCurrentLocation.getLongitude());
 		
 		SupportMapFragment fragmentManager = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-	    GoogleMap map = fragmentManager.getMap();
+	    map = fragmentManager.getMap();
 	    
 	    
  
@@ -198,8 +210,17 @@ public class MainActivity extends FragmentActivity implements
 	    //Centra en la ubicacion que se le pasa dentro del mapa
 		LatLng lp = new LatLng(-34.921379690174966,-57.954715202392556);
 		
-		LatLng MiCasa= new LatLng(-34.910242, -57.944417);
-		LatLng Menacho= new LatLng(-34.9107015,-57.9432675);
+//		LatLng MiCasa= new LatLng(-34.910242, -57.944417);
+//		LatLng Menacho= new LatLng(-34.9107015,-57.9432675);
+//		
+		
+		MarkerOptions options = new MarkerOptions();
+		options.position(Mi_casa);
+		options.position(Teatro_argentino);
+		map.addMarker(options);
+		String url = getMapsApiDirectionsUrl();
+		ReadTask downloadTask = new ReadTask();
+		downloadTask.execute(url);
 
 		
 	    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(lp, 13);
@@ -212,35 +233,136 @@ public class MainActivity extends FragmentActivity implements
 	    map.setMyLocationEnabled(true);
 	    
 	    //Agrega un marcador en el mapa
-	    map.addMarker (new MarkerOptions().position(lp).title("La Plata, Bs. As, Argentina"));
-	  
+	   // map.addMarker (new MarkerOptions().position(lp).title("La Plata, Bs. As, Argentina"));
+	    addMarkers();
 	    
 	    
-	    PolylineOptions lineas = new PolylineOptions()
+//	    PolylineOptions lineas = new PolylineOptions()
+//
+//        .add(new LatLng(-34.9106916,-57.943816))
+//
+//        .add(new LatLng(-34.911462,-57.9429356))
+//
+//        .add(new LatLng(-34.9106564,-57.9418808))
+//
+//        .add(new LatLng(-34.9097392,-57.942937))
+//
+//        .add(new LatLng(-34.9106916,-57.943816));
+//
+//
+//
+//	    lineas.width(8);
+//
+//	    lineas.color(Color.BLUE);
+//
+//
+//
+//	    map.addPolyline(lineas);
+//	    
+	}
+	
+//	---------------------------------------------------------------------------
+	private String getMapsApiDirectionsUrl() {
+		String waypoints = "waypoints=optimize:true|"
+				+ Mi_casa.latitude + "," + Mi_casa.longitude
+				+ "|" + "|" + Casa_Esteban.latitude + ","
+				+ Casa_Esteban.longitude;
 
-        .add(new LatLng(-34.9106916,-57.943816))
-
-        .add(new LatLng(-34.911462,-57.9429356))
-
-        .add(new LatLng(-34.9106564,-57.9418808))
-
-        .add(new LatLng(-34.9097392,-57.942937))
-
-        .add(new LatLng(-34.9106916,-57.943816));
-
-
-
-	    lineas.width(8);
-
-	    lineas.color(Color.BLUE);
-
-
-
-	    map.addPolyline(lineas);
-	    
+		String sensor = "sensor=false";
+		String params = waypoints + "&" + sensor;
+		String output = "json";
+		String url = "https://maps.googleapis.com/maps/api/directions/"
+				+ output + "?" + params;
+		return url;
 	}
  
+	
+	private void addMarkers() {
+		if (map != null) {
+			map.addMarker(new MarkerOptions().position(Mi_casa)
+					.title("First Point"));
+			map.addMarker(new MarkerOptions().position(Casa_Esteban)
+					.title("Second Point"));
+			
+		}
+	}
+	
+	private class ReadTask extends AsyncTask<String, Void, String> {
+		@Override
+		protected String doInBackground(String... url) {
+			String data = "";
+			try {
+				HttpConnection http = new HttpConnection();
+				data = http.readUrl(url[0]);
+			} catch (Exception e) {
+				Log.d("Background Task", e.toString());
+			}
+			return data;
+		}
 
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			new ParserTask().execute(result);
+		}
+	}
+
+	
+	
+	private class ParserTask extends
+	AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+
+		@Override
+		protected List<List<HashMap<String, String>>> doInBackground(
+		String... jsonData) {
+
+			JSONObject jObject;
+			List<List<HashMap<String, String>>> routes = null;
+
+			try {
+				jObject = new JSONObject(jsonData[0]);
+				PathJSONParser parser = new PathJSONParser();
+				routes = parser.parse(jObject);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return routes;
+		}
+
+		@Override
+		protected void onPostExecute(List<List<HashMap<String, String>>> routes) {
+			ArrayList<LatLng> points = null;
+			PolylineOptions polyLineOptions = null;
+
+			// traversing through routes
+			for (int i = 0; i < routes.size(); i++) {
+				points = new ArrayList<LatLng>();
+				polyLineOptions = new PolylineOptions();
+				List<HashMap<String, String>> path = routes.get(i);
+				
+				for (int j = 0; j < path.size(); j++) {
+					HashMap<String, String> point = path.get(j);
+
+					double lat = Double.parseDouble(point.get("lat"));
+					double lng = Double.parseDouble(point.get("lng"));
+					LatLng position = new LatLng(lat, lng);
+
+					points.add(position);
+				}
+
+				polyLineOptions.addAll(points);
+				polyLineOptions.width(2);
+				polyLineOptions.color(Color.BLUE);
+			}
+
+			map.addPolyline(polyLineOptions);
+		}
+	}
+	
+	
+	
+	
+//	-----------------------------------------------------------------------
 
 	@Override
 	public void onDisconnected() {
